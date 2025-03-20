@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>السلة - متجر adpl</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      direction: rtl;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+    .cart-item div {
+      flex: 1;
+    }
+    .summary {
+      margin: 20px 0;
+      font-size: 18px;
+      text-align: center;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      background: green;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      font-size: 16px;
+    }
+    .btn:hover { background: #006400; }
+    .btn.secondary {
+      background: #007bff;
+    }
+    .btn.secondary:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>السلة</h2>
+    <div id="cart-items">
+      <!-- سيتم عرض المنتجات هنا -->
+    </div>
+    <div class="summary">
+      <p id="total-amount">المجموع: 0 ريال</p>
+      <p>رسوم التوصيل: مجانا</p>
+    </div>
+    <div class="btn-group">
+      <button class="btn" onclick="sendOrder()">اتمام الطلب</button>
+      <button class="btn secondary" onclick="window.location.href='index.html'">العودة للتسوق</button>
+    </div>
+  </div>
+  
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+    function displayCart() {
+      const container = document.getElementById("cart-items");
+      if(cart.length === 0) {
+        container.innerHTML = "<p>السلة فارغة</p>";
+        updateTotal();
+        return;
+      }
+      container.innerHTML = "";
+      cart.forEach((item, index) => {
+        container.innerHTML += `
+          <div class="cart-item" onclick="goToProductDetails(${index})">
+            <img src="${item.img}" alt="${item.name}">
+            <div>
+              <h3>${item.name}</h3>
+              <p>السعر: ${item.price} ريال</p>
+            </div>
+          </div>
+        `;
+      });
+      updateTotal();
+    }
+    
+    displayCart();
+    
+    // تحديث المجموع
+    function updateTotal() {
+      let total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById("total-amount").innerText = "المجموع: " + total + " ريال";
+    }
+    
+    // عند النقر على عنصر من السلة، يتم حفظ بيانات المنتج والتوجه إلى صفحة التفاصيل
+    function goToProductDetails(index) {
+      localStorage.setItem("selectedProduct", JSON.stringify(cart[index]));
+      window.location.href = "product-details.html";
+    }
+    
+    // توليد رقم طلب عشوائي من 10 خانات
+    function generateOrderNumber() {
+      let orderNumber = "";
+      for(let i = 0; i < 10; i++){
+        orderNumber += Math.floor(Math.random() * 10);
+      }
+      return orderNumber;
+    }
+    
+    // إرسال الطلب عبر واتساب مع رقم الطلب
+    function sendOrder() {
+      if(cart.length === 0) {
+        alert("السلة فارغة");
+        return;
+      }
+      const orderNumber = generateOrderNumber();
+      const message = `تم إرسال طلبك بنجاح. رقم الطلب: ${orderNumber}`;
+      const phone = "966500640335"; // عدل رقم الهاتف حسب الحاجة
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>
